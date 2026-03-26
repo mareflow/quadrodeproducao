@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadro de Produção | TurboSul</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-turbo-teal { background-color: #0D9488; }
+        .text-turbo-teal { color: #0D9488; }
+        .bg-turbo-blue { background-color: #2563EB; }
+        .text-turbo-blue { color: #2563EB; }
+        .bg-turbo-orange { background-color: #EA580C; }
+
+        .status-badge { padding: 4px 10px; border-radius: 99px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .kanban-column {
+            flex-shrink: 0;
+            width: 300px; /* Largura fixa para cada coluna do Kanban */
+            background-color: #F8FAFC; /* bg-slate-50 */
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        .kanban-card {
+            background-color: #FFFFFF; /* bg-white */
+            border-radius: 0.75rem; /* rounded-lg */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center space-x-4">
+            <img src="https://i.postimg.cc/Jh5Jvrc9/IMG-7901.png" alt="TurboSul Logo" class="h-10">
+            <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase italic">TurboSul - Controle de Produção</h1>
+                <p class="text-xs text-slate-500 font-medium italic">Gerenciamento de Ordens de Serviço</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-6">
+            <button onclick="window.location.href='admin.html'" class="bg-blue-100 text-turbo-blue px-6 py-2 rounded-xl text-sm font-bold hover:bg-blue-200 transition shadow-sm">Meu Painel</button>
+            <div class="text-right border-l pl-6 border-slate-200">
+                <p class="text-sm font-bold">Administrador</p>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Gestão Central</p>
+            </div>
+            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition">Sair</button>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="bg-white border-b border-slate-200 px-8">
+        <div class="flex space-x-12">
+            <button onclick="switchKanbanTab(this, 'geral')" class="kanban-tab tab-active py-4 text-[11px] font-black uppercase tracking-widest transition-all">Rastreio Geral</button>
+            <button onclick="switchKanbanTab(this, 'global')" class="kanban-tab text-slate-400 py-4 text-[11px] font-black uppercase tracking-widest transition-all">Rastreio Global</button>
+            <button onclick="switchKanbanTab(this, 'planejamento')" class="kanban-tab text-slate-400 py-4 text-[11px] font-black uppercase tracking-widest transition-all">Planejamento</button>
+        </div>
+    </nav>
+
+    <main class="p-8 flex-1 overflow-auto custom-scroll">
+        <h2 class="text-2xl font-black text-slate-800 mb-8 uppercase italic">Quadro de Produção</h2>
+
+        <!-- CONTEÚDO DA ABA RASTREIO GERAL -->
+        <div id="tab-geral" class="kanban-content flex space-x-6 h-[calc(100vh-280px)]">
+            
+            <!-- COLUNA: ORÇAMENTO / ANÁLISE -->
+            <div class="kanban-column p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
+                    <h3 class="text-sm font-black uppercase text-slate-700">1. Orçamento / Análise</h3>
+                    <span class="px-2 py-0.5 bg-blue-100 text-blue-600 text-xs font-black rounded-full">0</span>
+                </div>
+                <div id="col-orcamento" class="flex-1 space-y-3 overflow-y-auto custom-scroll pr-2">
+                    <!-- Cards de OS injetados via JS -->
+                </div>
+            </div>
+
+            <!-- COLUNA: FILA DE PRODUÇÃO -->
+            <div class="kanban-column p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
+                    <h3 class="text-sm font-black uppercase text-slate-700">2. Fila de Produção (OS Gerada)</h3>
+                    <span class="px-2 py-0.5 bg-green-100 text-green-600 text-xs font-black rounded-full">0</span>
+                </div>
+                <div id="col-fila-producao" class="flex-1 space-y-3 overflow-y-auto custom-scroll pr-2">
+                    <!-- Cards de OS injetados via JS -->
+                </div>
+            </div>
+
+            <!-- COLUNA: EM EXECUÇÃO -->
+            <div class="kanban-column p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
+                    <h3 class="text-sm font-black uppercase text-slate-700">3. Em Execução</h3>
+                    <span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-xs font-black rounded-full">0</span>
+                </div>
+                <div id="col-execucao" class="flex-1 space-y-3 overflow-y-auto custom-scroll pr-2">
+                    <!-- Cards de OS injetados via JS -->
+                </div>
+            </div>
+
+            <!-- COLUNA: PRONTO -->
+            <div class="kanban-column p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
+                    <h3 class="text-sm font-black uppercase text-slate-700">4. Pronto</h3>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-600 text-xs font-black rounded-full">0</span>
+                </div>
+                <div id="col-pronto" class="flex-1 space-y-3 overflow-y-auto custom-scroll pr-2">
+                    <!-- Cards de OS injetados via JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CONTEÚDO DAS ABAS "EM DESENVOLVIMENTO" -->
+        <div id="tab-global" class="kanban-content hidden h-[calc(100vh-280px)] flex flex-col items-center justify-center bg-white rounded-3xl border-2 border-dashed border-slate-200 text-slate-400">
+            <i class="fa-solid fa-earth-americas text-6xl mb-4 opacity-20"></i>
+            <p class="font-black uppercase tracking-widest italic">Rastreio Global: Em Desenvolvimento</p>
+        </div>
+
+        <div id="tab-planejamento" class="kanban-content hidden h-[calc(100vh-280px)] flex flex-col items-center justify-center bg-white rounded-3xl border-2 border-dashed border-slate-200 text-slate-400">
+            <i class="fa-solid fa-calendar-days text-6xl mb-4 opacity-20"></i>
+            <p class="font-black uppercase tracking-widest italic">Planejamento de Fluxo: Em Desenvolvimento</p>
+        </div>
+
+    </main>
+
+    <script>
+        const API_BOARD_DATA = 'https://webhook.mareflow.com.br/webhook/production/production-board'; // Endpoint para o quadro de produção
+        let boardData = {
+            orcamento_analise: [],
+            fila_producao: [],
+            em_execucao: [],
+            pronto: []
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchBoardData();
+            // Atualiza o quadro a cada 60 segundos
+            setInterval(fetchBoardData, 60000); 
+        });
+
+        async function fetchBoardData() {
+            try {
+                const response = await fetch(API_BOARD_DATA);
+                const data = await response.json();
+                boardData = data; // A API deve retornar o objeto já estruturado
+                renderKanban();
+            } catch (e) {
+                console.error("Erro ao carregar quadro de produção:", e);
+                // Exibir um erro no quadro, se houver um elemento dedicado
+            }
+        }
+
+        function renderKanban() {
+            // Coluna 1: Orçamento / Análise
+            renderColumn('col-orcamento', boardData.orcamento_analise, 'blue');
+            // Coluna 2: Fila de Produção
+            renderColumn('col-fila-producao', boardData.fila_producao, 'green');
+            // Coluna 3: Em Execução
+            renderColumn('col-execucao', boardData.em_execucao, 'amber');
+            // Coluna 4: Pronto
+            renderColumn('col-pronto', boardData.pronto, 'emerald');
+
+            // Atualizar contadores
+            document.querySelector('#col-orcamento').closest('.kanban-column').querySelector('span').innerText = boardData.orcamento_analise.length;
+            document.querySelector('#col-fila-producao').closest('.kanban-column').querySelector('span').innerText = boardData.fila_producao.length;
+            document.querySelector('#col-execucao').closest('.kanban-column').querySelector('span').innerText = boardData.em_execucao.length;
+            document.querySelector('#col-pronto').closest('.kanban-column').querySelector('span').innerText = boardData.pronto.length;
+        }
+
+        function renderColumn(columnId, osList, statusColor) {
+            const column = document.getElementById(columnId);
+            if (!column) return;
+
+            if (!osList || osList.length === 0) {
+                column.innerHTML = `<div class="p-4 text-center text-slate-400 italic text-sm">Nenhuma OS nesta categoria.</div>`;
+                return;
+            }
+
+            column.innerHTML = osList.map(os => `
+                <div class="kanban-card p-4 border border-slate-100 flex flex-col space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-black text-slate-900 uppercase">${os.business_id}</span>
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[8px] font-black rounded-full">Dif. ${os.difficulty || '0'}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">MODELO: ${os.model}</p>
+                    <p class="text-[10px] text-slate-500 font-medium uppercase">${os.client}</p>
+                    <span class="status-badge bg-${statusColor}-100 text-${statusColor}-600 self-start">${os.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function switchKanbanTab(btn, tabId) {
+            document.querySelectorAll('.kanban-tab').forEach(t => t.classList.remove('tab-active', 'text-slate-400'));
+            btn.classList.add('tab-active');
+            
+            document.querySelectorAll('.kanban-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+        }
+
+        // Funções para definir cores de status (se usadas nos cards individuais)
+        function getStatusStyle(status) {
+            const s = status.toLowerCase();
+            if (s.includes('aguardando') || s.includes('análise') || s.includes('vendas')) return 'bg-blue-100 text-blue-600';
+            if (s.includes('triagem') || s.includes('produção') || s.includes('desmontagem') || s.includes('retífica')) return 'bg-green-100 text-green-600';
+            if (s.includes('execução') || s.includes('solda') || s.includes('metrologia') || s.includes('bancada') || s.includes('montagem')) return 'bg-amber-100 text-amber-600';
+            if (s.includes('pronto') || s.includes('qualidade') || s.includes('expedição')) return 'bg-emerald-100 text-emerald-600';
+            return 'bg-slate-100 text-slate-500';
+        }
+    </script>
+</body>
+</html>
