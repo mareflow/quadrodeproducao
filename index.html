@@ -146,12 +146,32 @@
         async function fetchBoardData() {
             try {
                 const response = await fetch(API_BOARD_DATA);
-                const data = await response.json();
-                boardData = data; // A API deve retornar o objeto já estruturado
+                const rawData = await response.json();
+                
+                // CORREÇÃO CRÍTICA: Desempacota a resposta do n8n
+                if (Array.isArray(rawData) && rawData.length > 0 && rawData[0].json) {
+                    boardData = rawData[0].json; 
+                } else {
+                    // Define uma estrutura padrão vazia em caso de erro ou formato inesperado
+                    console.warn("Formato de dados do Quadro de Produção inesperado ou vazio. Usando estrutura padrão.");
+                    boardData = {
+                        orcamento_analise: [],
+                        fila_producao: [],
+                        em_execucao: [],
+                        pronto: []
+                    };
+                }
                 renderKanban();
             } catch (e) {
                 console.error("Erro ao carregar quadro de produção:", e);
-                // Exibir um erro no quadro, se houver um elemento dedicado
+                // Se o fetch falhar totalmente, também usamos a estrutura padrão vazia
+                boardData = {
+                    orcamento_analise: [],
+                    fila_producao: [],
+                    em_execucao: [],
+                    pronto: []
+                };
+                renderKanban(); // Tenta renderizar com dados vazios
             }
         }
 
